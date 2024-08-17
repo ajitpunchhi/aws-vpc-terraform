@@ -24,29 +24,30 @@ Before using this Terraform module, ensure that you have the following installed
 ## Usage
 
 ### Clone the repository
-
+```
 git clone https://github.com/yourusername/aws-vpc-terraform.git
 cd aws-vpc-terraform
-
-### Configure Terraform Variables
+```
 
 ### Initialize Terraform
 Initialize the Terraform working directory. This command downloads the provider and module dependencies.
 
+```
 terraform init
-
-###  \Plan the Infrastructure
+```
+###  Plan the Infrastructure
 Generate and review the execution plan to see what actions Terraform will perform.
 
 terraform plan
 
 ### Apply the Configuration
 Apply the Terraform plan to create the VPC and related resources.
-
+```
 terraform apply
-Type yes when prompted to confirm.
+```Type yes when prompted to confirm.
 
 ### Clean Up Resources
 To delete the resources created by Terraform, run the following command:
-
+```
 terraform destroy
+```
