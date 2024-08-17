@@ -33,24 +33,20 @@ cd aws-vpc-terraform
 ### Initialize Terraform
 Initialize the Terraform working directory. This command downloads the provider and module dependencies.
 
-Copy code
 terraform init
 
 ###  \Plan the Infrastructure
 Generate and review the execution plan to see what actions Terraform will perform.
 
-Copy code
 terraform plan
 
 ### Apply the Configuration
 Apply the Terraform plan to create the VPC and related resources.
 
-Copy code
 terraform apply
 Type yes when prompted to confirm.
 
 ### Clean Up Resources
 To delete the resources created by Terraform, run the following command:
 
-Copy code
 terraform destroy
