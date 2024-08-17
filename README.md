@@ -26,5 +26,20 @@ Before using this Terraform module, ensure that you have the following installed
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/terraform-vpc.git
-cd terraform-vpc
+git clone https://github.com/yourusername/aws-vpc-terraform.git
+cd aws-vpc-terraform
+
+
+2. Configure Terraform Variables
+
+3. Initialize Terraform
+Initialize the Terraform working directory. This command downloads the provider and module dependencies.
+
+terraform init
+
+4. Plan the Infrastructure
+Generate and review the execution plan to see what actions Terraform will perform.
+terraform plan
+5. Apply the Configuration
+terraform apply
+Type yes when prompted to confirm.
