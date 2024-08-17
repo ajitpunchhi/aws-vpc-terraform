@@ -3,12 +3,12 @@
 variable "aws_secret-key" {
     description = "Secret key for authorization"
     type = string
-    default = "RkbZ0ABHPgOBZAphcEOjO7FXZdUbRIgUyVUsVwJv"
+    default = ""
 }
 variable "aws_access-key" {
     description = "Access Key for authorization"
     type = string
-    default = "AKIA2PC75XPJEEDWIARB"
+    default = "A"
 }
 
 variable "aws_region" {
@@ -83,19 +83,6 @@ variable "defualt_cidr_block" {
     description = "The valuew of cidr block is 0.0.0.0/0"
     type = string
     default = "0.0.0.0/0"
-  
-}
-
-variable "instance_type" {
-    description = "Ec2 Machine Type"
-    type = string
-    default = "t2.micro"
-}
-
-variable "ami" {
-    description = "OS AMi Type"
-    type = string
-    default = "ami-0f58b397bc5c1f2e8"
   
 }
 
