@@ -40,6 +40,7 @@ terraform init
 4. Plan the Infrastructure
 Generate and review the execution plan to see what actions Terraform will perform.
 terraform plan
+
 5. Apply the Configuration
 terraform apply
 Type yes when prompted to confirm.
