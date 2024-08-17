@@ -1,3 +1,4 @@
+# Aws VPC Output File
 output "vpc" {
     value = aws_vpc.Sandbox_vpc.id
 }
