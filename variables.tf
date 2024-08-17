@@ -8,7 +8,7 @@ variable "aws_secret-key" {
 variable "aws_access-key" {
     description = "Access Key for authorization"
     type = string
-    default = "A"
+    default = ""
 }
 
 variable "aws_region" {
