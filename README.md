@@ -23,10 +23,17 @@ Before using this Terraform module, ensure that you have the following installed
 
 ## Usage
 
-### 1. Clone the repository
+### Clone the repository
 
 ```bash
 git clone https://github.com/yourusername/aws-vpc-terraform.git
 cd aws-vpc-terraform
 
-2. Configure Terraform Variables
+### Configure Terraform Variables
+
+### Initialize Terraform
+Initialize the Terraform working directory. This command downloads the provider and module dependencies.
+
+bash
+Copy code
+terraform init
