@@ -7,11 +7,10 @@ This Terraform module creates an Amazon Web Services (AWS) Virtual Private Cloud
 ## Features
 
 - Create a VPC with configurable CIDR block
-- Create public and private subnets across multiple Availability Zones
+- Create public, private and DB subnets across multiple Availability Zones
 - Configure route tables for the subnets
 - Create an Internet Gateway (IGW) and associate it with the public route table
 - Create a NAT Gateway for private subnet outbound internet access
-- Optionally enable VPC Flow Logs
 
 ## Prerequisites
 
