@@ -3,6 +3,8 @@ This Terraform module creates an Amazon Web Services (AWS) Virtual Private Cloud
 
 
 ![aws-vpc-architecture-diagram](https://github.com/user-attachments/assets/89bb1bdd-72d1-4004-a871-9e792b24e0f2)
+
+```hcl
 Features
 
 Create a VPC with configurable CIDR block
@@ -13,7 +15,7 @@ Create a NAT Gateway for private subnet outbound internet access
 Support for extensible configuration for staging and production environments
 Automatic DNS hostname and support configuration
 Cross-AZ redundancy for high availability
-
+```
 Architecture
 The module creates the following AWS resources:
 
