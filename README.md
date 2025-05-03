@@ -7,14 +7,14 @@ This Terraform module creates an Amazon Web Services (AWS) Virtual Private Cloud
 ```hcl
 Features
 
-Create a VPC with configurable CIDR block
-Create public, private and DB subnets across multiple Availability Zones
-Configure route tables for the subnets
-Create an Internet Gateway (IGW) and associate it with the public route table
-Create a NAT Gateway for private subnet outbound internet access
-Support for extensible configuration for staging and production environments
-Automatic DNS hostname and support configuration
-Cross-AZ redundancy for high availability
+1. Create a VPC with configurable CIDR block
+2. Create public, private and DB subnets across multiple Availability Zones
+3. Configure route tables for the subnets
+4. Create an Internet Gateway (IGW) and associate it with the public route table
+5. Create a NAT Gateway for private subnet outbound internet access
+6. Support for extensible configuration for staging and production environments
+A. utomatic DNS hostname and support configuration
+8. Cross-AZ redundancy for high availability
 ```
 Architecture
 The module creates the following AWS resources:
