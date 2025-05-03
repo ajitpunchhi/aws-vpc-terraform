@@ -13,7 +13,7 @@ Features
 4. Create an Internet Gateway (IGW) and associate it with the public route table
 5. Create a NAT Gateway for private subnet outbound internet access
 6. Support for extensible configuration for staging and production environments
-A. utomatic DNS hostname and support configuration
+7. Automatic DNS hostname and support configuration
 8. Cross-AZ redundancy for high availability
 ```
 Architecture
