@@ -16,6 +16,8 @@ Features
 7. Automatic DNS hostname and support configuration
 8. Cross-AZ redundancy for high availability
 ```
+
+```hcl
 Architecture
 The module creates the following AWS resources:
 
@@ -37,7 +39,9 @@ Database route table (isolated)
 
 
 Elastic IP: For NAT Gateway association
+```
 
+```hcl
 Prerequisites
 Before using this Terraform module, ensure that you have the following installed:
 
@@ -90,6 +94,9 @@ terraform apply
 
 # Clean up resources
 terraform destroy
+```
+
+```hcl
 Input Variables
 NameDescriptionTypeDefaultaws_regionAWS region to create resourcesstringap-south-1vpc_cidrCIDR block for VPCstring20.0.0.0/24public_subnetsList of public subnet CIDR blockslist(string)["20.0.0.0/26", "20.0.0.64/26"]private_subnetsList of private subnet CIDR blockslist(string)["20.0.0.128/27", "20.0.0.160/27"]Database_subnetsList of database subnet CIDR blockslist(string)["20.0.0.192/27", "20.0.0.224/27"]region_azsList of availability zoneslist(string)["ap-south-1a", "ap-south-1b"]aws_access_keyAWS access keystring""aws_secret_keyAWS secret keystring""
 Outputs
@@ -141,6 +148,9 @@ hclterraform {
     }
   }
 }
+
+```
+```hcl
 License
 MIT License
 Contributing
@@ -149,3 +159,4 @@ Support
 For support, please create an issue in the GitHub repository.
 Acknowledgments
 This module was created to simplify AWS VPC creation and management using Infrastructure as Code principles.
+```
