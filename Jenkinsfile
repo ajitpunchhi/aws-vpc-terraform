@@ -4,8 +4,8 @@ pipeline {
         booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
     } 
     environment {
-        AWS_ACCESS_KEY_ID     = credentials('AWS_Access_key')
-        AWS_SECRET_ACCESS_KEY = credentials('Secret access key')
+        AWS_Access_key     = credentials('AWS_Access_key')
+        Secret access key = credentials('Secret access key')
     }
 
    agent  any
