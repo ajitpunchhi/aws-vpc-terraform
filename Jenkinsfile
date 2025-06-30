@@ -35,7 +35,7 @@ pipeline{
         stage('upload state file') {
             steps {
                 echo 'Uploading Terraform state file to S3...'
-                sh 'aws s3 cp terraform.tfstate s3://your-s3-bucket-name/'
+                sh 'aws s3 cp terraform.tfstate s3://ajitterraform/'
             }
         }
 
