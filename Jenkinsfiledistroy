@@ -1,0 +1,29 @@
+
+pipeline{
+    agent any
+    
+    environment{
+        AWS_DEFAULT_REGION = 'ap-south-1'
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+    }
+    stages{
+        stage('clone repository') {
+            steps {
+                echo 'Cloning repository...'
+                // Replace with your repository URL
+                git url: 'https://github.com/ajitpunchhi/aws-vpc-terraform.git', branch: 'main'
+            }
+        stage('Terraform destroy') {
+            steps {
+                echo 'destroy Terraform...'
+                sh 'terraform destroy -auto-approve'
+            }
+        }
+        stage('upload state file') {
+            steps {
+                echo 'Uploading Terraform state file to S3...'
+                sh 'aws s3 cp terraform.tfstate s3://ajitterraform/'
+            }
+        }
+}
