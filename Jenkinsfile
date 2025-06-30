@@ -39,6 +39,24 @@ pipeline{
                 sh 'aws s3 cp terraform.tfstate s3://ajitterraform/'
             }
         }
-
+        stage('Approval to Destroy') {
+            when {
+                expression { return false } // Always true for demonstration; adjust as needed
+            }
+            steps {
+                input message: 'Do you want to destroy the Terraform resources?', ok: 'Yes, Destroy'
+            }
+        stage('Terraform Destroy') {
+            steps {
+                echo 'Destroying Terraform resources...'
+                sh 'terraform destroy -auto-approve'
+            }
+        }   
+        stage('destroy terraform state file') {
+            steps {
+                echo 'Deleting Terraform state file...'
+                sh 'aws s3 rm s3://ajitterraform/terraform.tfstate'
+            }
+        }
     }  
     }
