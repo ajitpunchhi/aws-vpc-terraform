@@ -1,54 +1,37 @@
-pipeline {
 
-    parameters {
-        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
-    } 
-    environment {
-        AWS_ACCESS_KEY_ID    = credentials('AWS_ACCESS_KEY_ID')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+pipeline{
+    agent
+    
+    environment{
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
     }
-
-   agent  any
-    stages {
-        stage('checkout') {
+    stages{
+        stage('clone repository') {
             steps {
-                 script{
-                        dir("terraform")
-                        {
-                            git "https://github.com/ajitpunchhi/aws-vpc-terraform.git"
-                        }
-                    }
-                }
-            }
-
-        stage('Plan') {
-            steps {
-                sh 'pwd;cd terraform/ ; terraform init'
-                sh "pwd;cd terraform/ ; terraform plan -out tfplan"
-                sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
+                echo 'Cloning repository...'
+                // Replace with your repository URL
+                git url: 'https://github.com/ajitpunchhi/aws-vpc-terraform.git', branch: 'main'
             }
         }
-        stage('Approval') {
-           when {
-               not {
-                   equals expected: true, actual: params.autoApprove
-               }
-           }
-
-           steps {
-               script {
-                    def plan = readFile 'terraform/tfplan.txt'
-                    input message: "Do you want to apply the plan?",
-                    parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
-               }
-           }
-       }
-
-        stage('Apply') {
+        stage('Terraform Init') {
             steps {
-                sh "pwd;cd terraform/ ; terraform apply -input=false tfplan"
+                echo 'Initializing Terraform...'
+                sh 'terraform init'
+            }
+        }
+        stage('Terraform Plan') {
+            steps {
+                echo 'Planning Terraform changes...'
+                sh 'terraform plan'
+            }
+        }
+        stage('Terraform Apply') {
+            steps {
+                echo 'Applying Terraform changes...'
+                sh 'terraform apply -auto-approve'
             }
         }
     }
-
-  }
+    
+    }
