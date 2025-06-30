@@ -1,178 +1,32 @@
-pipeline {
+
+pipeline{
     agent any
     
-    environment {
+    environment{
         AWS_DEFAULT_REGION = 'ap-south-1'
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-        TERRAFORM_VERSION = '1.5.0'  // Specify Terraform version for consistency
-        S3_BUCKET = 'ajitterraform'
-        REPOSITORY_URL = 'https://github.com/ajitpunchhi/aws-vpc-terraform.git'
-        REPOSITORY_BRANCH = 'main'
     }
-    
-    options {
-        timeout(time: 60, unit: 'MINUTES')
-    }
-    
-    stages {
-        stage('Preparation') {
-            steps {
-                echo 'Starting Terraform destroy pipeline...'
-                script {
-                    // Clean workspace
-                    cleanWs()
-                }
-            }
-        }
-        
-        stage('Clone Repository') {
+    stages{
+        stage('clone repository') {
             steps {
                 echo 'Cloning repository...'
-                checkout scm: [
-                    $class: 'GitSCM',
-                    branches: [[name: "*/${env.REPOSITORY_BRANCH}"]],
-                    userRemoteConfigs: [[url: "${env.REPOSITORY_URL}"]]
-                ]
-                
-                // Verify repository contents
-                sh 'ls -la'
-                sh 'pwd'
+                // Replace with your repository URL
+                git url: 'https://github.com/ajitpunchhi/aws-vpc-terraform.git', branch: 'main'
             }
         }
-        
-        stage('Download Remote State') {
+        stage('Terraform destory') {
             steps {
-                echo 'Downloading Terraform state file from S3...'
-                script {
-                    try {
-                        sh """
-                            # Check if state file exists in S3
-                            if aws s3 ls s3://${S3_BUCKET}/terraform.tfstate; then
-                                echo "State file found, downloading..."
-                                aws s3 cp s3://${S3_BUCKET}/terraform.tfstate .
-                            else
-                                echo "No state file found in S3. Creating empty state."
-                                touch terraform.tfstate
-                            fi
-                        """
-                    } catch (Exception e) {
-                        echo "Warning: Could not download state file: ${e.getMessage()}"
-                        echo "Proceeding with local state..."
-                    }
-                }
+                echo 'Destroy Terraform...'
+                sh 'terraform destroy -auto-approve'
             }
         }
-        
-        stage('Terraform Init') {
+        stage('upload state file') {
             steps {
-                echo 'Initializing Terraform...'
-                sh """
-                    terraform --version
-                    terraform init -input=false
-                """
+                echo 'Uploading Terraform state file to S3...'
+                sh 'aws s3 cp terraform.tfstate s3://ajitterraform/'
             }
         }
-        
-        stage('Terraform Plan Destroy') {
-            steps {
-                echo 'Creating destroy plan...'
-                sh """
-                    terraform plan -destroy -out=tfplan-destroy -input=false
-                    terraform show -no-color tfplan-destroy
-                """
-            }
-        }
-        
-        stage('Confirmation') {
-            steps {
-                script {
-                    echo 'WARNING: This will destroy all Terraform-managed infrastructure!'
-                    echo 'Review the destroy plan above carefully.'
-                    
-                    // In a real environment, you might want to add manual approval
-                    // input message: 'Proceed with destroy?', ok: 'Yes, destroy infrastructure'
-                    
-                    echo 'Proceeding with automated destroy...'
-                }
-            }
-        }
-        
-        stage('Terraform Destroy') {
-            steps {
-                echo 'Destroying Terraform infrastructure...'
-                sh """
-                    terraform apply tfplan-destroy -auto-approve
-                    echo "Infrastructure destroyed successfully"
-                """
-            }
-        }
-        
-        stage('Upload Updated State') {
-            steps {
-                echo 'Uploading updated Terraform state file to S3...'
-                script {
-                    try {
-                        sh """
-                            # Upload the updated state file
-                            aws s3 cp terraform.tfstate s3://${S3_BUCKET}/terraform.tfstate
-                            
-                            # Create a backup with timestamp
-                            TIMESTAMP=\$(date +%Y%m%d-%H%M%S)
-                            aws s3 cp terraform.tfstate s3://${S3_BUCKET}/backups/terraform.tfstate-\${TIMESTAMP}
-                            
-                            echo "State file uploaded and backed up successfully"
-                        """
-                    } catch (Exception e) {
-                        error "Failed to upload state file: ${e.getMessage()}"
-                    }
-                }
-            }
-        }
-        
-        stage('Cleanup') {
-            steps {
-                echo 'Cleaning up temporary files...'
-                sh """
-                    rm -f tfplan-destroy
-                    rm -f .terraform.lock.hcl
-                    rm -rf .terraform/
-                """
-            }
-        }
-    }
-    
-    post {
-        always {
-            echo 'Pipeline execution completed'
-            archiveArtifacts artifacts: 'terraform.tfstate', allowEmptyArchive: true
-            
-            script {
-                // Clean workspace after completion
-                cleanWs()
-            }
-        }
-        
-        success {
-            echo 'Terraform destroy completed successfully!'
-            // Add notification here if needed (Slack, email, etc.)
-        }
-        
-        failure {
-            echo 'Terraform destroy failed!'
-            script {
-                // Backup any logs or state files in case of failure
-                try {
-                    sh 'aws s3 cp terraform.tfstate s3://${S3_BUCKET}/failed-states/terraform.tfstate-${BUILD_NUMBER}'
-                } catch (Exception e) {
-                    echo "Could not backup failed state: ${e.getMessage()}"
-                }
-            }
-            // Add failure notification here if needed
-        }
-        
-        aborted {
-            echo 'Pipeline was aborted'
-        }
-    }
+
+    }  
 }
