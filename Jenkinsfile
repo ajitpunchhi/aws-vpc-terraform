@@ -1,6 +1,6 @@
 
 pipeline{
-    agent
+    agent{ label 'aws-agent' }
     
     environment{
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
@@ -32,7 +32,7 @@ pipeline{
                 sh 'terraform apply -auto-approve'
             }
         }
-        stafe('upload state file') {
+        stage('upload state file') {
             steps {
                 echo 'Uploading Terraform state file to S3...'
                 sh 'aws s3 cp terraform.tfstate s3://your-s3-bucket-name/'
