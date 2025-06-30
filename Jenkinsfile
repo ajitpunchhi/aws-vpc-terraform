@@ -39,11 +39,6 @@ pipeline{
                 sh 'aws s3 cp terraform.tfstate s3://ajitterraform/'
             }
         }
-        stage('Terraform Destroy') {
-            steps {
-                echo 'Destroying Terraform resources...'
-                sh 'terraform destroy -auto-approve'
-            }
-        }   
+        
     }  
     }
