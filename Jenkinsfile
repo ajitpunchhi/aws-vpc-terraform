@@ -195,7 +195,7 @@ pipeline {
                 }
             }
             
-            cleanWs()
+            cleanWs(deleteDirs: true, notFailBuild: true)
         }
         
         success {
