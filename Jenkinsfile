@@ -60,10 +60,10 @@ pipeline{
             }
         }
         stage('SonarQube Analysis') {
+            environment {
+                sonarScannerHome = tool 'SonarQubeScanner'
+            }
             steps {
-            
-                scannerHome = tool 'SonarQubeScanner'
-
                 withSonarQubeEnv('SonarQubeScanner') {
                     sh "${sonarScannerHome}/bin/sonar-scanner -Dsonar.projectKey=aws-vpc-terraform -Dsonar.sources=. -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN}"
                 }
