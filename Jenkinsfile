@@ -8,6 +8,12 @@ pipeline{
         SONAR_TOKEN = credentials('SONAR_TOKEN')
         SONAR_HOST_URL = 'http://15.206.153.35:9000'
     }
+
+    tools {
+        terraform 'Terraform 1.5.7'
+        sonarScanner 'SonarQube Scanner 4.8.0.2856'
+    }
+    
     stages {
         stage('Clone Repository') {
             steps {
