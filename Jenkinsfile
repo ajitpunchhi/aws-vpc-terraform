@@ -10,7 +10,8 @@ pipeline{
     }
 
     tools {
-        'hudson.plugins.sonar.SonarRunnerInstallation'}
+        'hudson.plugins.sonar.SonarRunnerInstallation' 'SonarQubeScanner'
+        }
 
     stages {
         stage('Clone Repository') {
@@ -61,7 +62,7 @@ pipeline{
         stage('SonarQube Analysis') {
             steps {
                 echo 'Running SonarQube analysis...'
-                withSonarQubeEnv('Sonarqube Scanner') {
+                withSonarQubeEnv('SonarQubeScanner') {
                     sh '/bin/sonar-scanner'
                 }
             }
