@@ -10,8 +10,7 @@ pipeline{
     }
 
     tools {
-        sonarScanner 'SonarQube Scanner 4.8.0.2856'
-    }
+        type 'sonarScanner', 'SonarQube Scanner 4.8.0.2856'}
 
     stages {
         stage('Clone Repository') {
