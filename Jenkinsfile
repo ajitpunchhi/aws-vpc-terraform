@@ -113,43 +113,7 @@ pipeline{
                 '''
             }
         }
-        
-        post {
-        success {
-            script {
-                if (currentBuild.description?.contains('already exist')) {
-                    echo '✅ Completed: Resources already existed - No action taken'
-                    echo '📊 SonarQube scan was skipped (not needed)'
-                } else {
-                    echo '✅ Completed: Resources created successfully after quality checks!'
-                    echo '📊 SonarQube analysis passed'
-                }
-            }
-        }
-        
-        failure {
-            script {
-                if (env.PROCEED_WITH_CREATION == 'true') {
-                    echo '❌ Pipeline failed - Could be due to:'
-                    echo '   • SonarQube quality gate failure'
-                    echo '   • Terraform apply failure'
-                    echo '   • Infrastructure deployment issue'
-                } else {
-                    echo '❌ Pipeline failed during initial checks'
-                }
-            }
-        }
-        
-        always {
-            // Archive SonarQube reports if they exist
-            script {
-                try {
-                    archiveArtifacts artifacts: '.scannerwork/report-task.txt', allowEmptyArchive: true
-                } catch (Exception e) {
-                    echo "No SonarQube artifacts to archive"
-                }
-            }
-    }
+
+    
 }
-    }
     }
