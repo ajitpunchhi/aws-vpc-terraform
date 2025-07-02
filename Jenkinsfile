@@ -8,17 +8,6 @@ pipeline{
         SONAR_TOKEN = credentials('SONAR_TOKEN')
         SONAR_HOST_URL = 'http://15.206.153.35:9000'
     }
-
-    tools
-    {
-        "org.sonar.jenkins.plugins.sonarjenkins.SonarRunnerInstallation" "SonarQube Scanner" {
-            properties = [
-                "sonar.host.url": SONAR_HOST_URL,
-                "sonar.login": SONAR_TOKEN
-            ]
-        }
-    }
-
     stages {
         stage('Clone Repository') {
             steps {
