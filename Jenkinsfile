@@ -82,7 +82,7 @@ pipeline{
                 }
             }
         }
-        stage9('terraform Plan') {
+        stage('terraform Plan') {
             steps {
                 echo 'Running Terraform plan...'
                 sh 'terraform plan -out=tfplan'
