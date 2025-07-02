@@ -62,8 +62,8 @@ pipeline{
         stage('SonarQube Analysis') {
             steps {
                 echo 'Running SonarQube analysis...'
-                def sonarScannerHome = tool 'SonarQubeScanner'
-                env.PATH = "${sonarScannerHome}/bin:${env.PATH}"
+                    def sonarScannerHome = tool 'SonarQubeScanner'
+
                 withSonarQubeEnv('SonarQubeScanner') {
                     sh "${sonarScannerHome}/bin/sonar-scanner -Dsonar.projectKey=aws-vpc-terraform -Dsonar.sources=. -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN}"
                 }
