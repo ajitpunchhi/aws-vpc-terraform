@@ -1,27 +1,31 @@
-pipeline {
+pipeline{
     agent any
-    
+
     environment {
-        AWS_DEFAULT_REGION = 'ap-south-1'
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_DEFAULT_REGION = 'ap-south-1'
         SONAR_TOKEN = credentials('SONAR_TOKEN')
-        SONAR_HOST_URL = 'http://15.206.153.35:9000'  // Change to your SonarQube URL
+        SONAR_HOST_URL = 'http://15.206.153.35:9000'
     }
-    
-    tools {
-        // Add SonarQube Scanner tool (configure in Jenkins Global Tools)
-        'org.sonarsource.scanner.jenkins.tool.SonarQubeScanner' 'SonarQubeScanner'
+
+    tools
+    {
+        "org.sonar.jenkins.plugins.sonarjenkins.SonarRunnerInstallation" "SonarQube Scanner" {
+            properties = [
+                "sonar.host.url": SONAR_HOST_URL,
+                "sonar.login": SONAR_TOKEN
+            ]
+        }
     }
-    
+
     stages {
         stage('Clone Repository') {
             steps {
                 echo 'Cloning Terraform repository...'
                 git url: 'https://github.com/ajitpunchhi/aws-vpc-terraform.git', branch: 'main'
-            }
+                  }
         }
-        
         stage('Download State File') {
             steps {
                 echo 'Downloading state file from S3...'
@@ -30,14 +34,12 @@ pipeline {
                 '''
             }
         }
-        
         stage('Terraform Init') {
             steps {
                 echo 'Initializing Terraform...'
                 sh 'terraform init'
             }
         }
-        
         stage('Check If Resources Exist') {
             steps {
                 echo 'Checking if resources already exist...'
@@ -46,119 +48,73 @@ pipeline {
                         script: 'terraform plan -detailed-exitcode',
                         returnStatus: true
                     )
-                    
+
                     if (planExitCode == 0) {
                         echo '✅ Resources already exist and are up-to-date!'
-                        echo '🛑 Exiting pipeline - No action needed'
-                        echo '⏭️ Skipping SonarQube scan and resource creation'
+                        echo '🛑 No action needed - Exiting pipeline'
                         currentBuild.result = 'SUCCESS'
-                        currentBuild.description = 'Resources already exist - Pipeline exited early'
+                        currentBuild.description = 'Resources already exist - No changes needed'
                         return
                     } else if (planExitCode == 1) {
                         error '❌ Terraform plan failed - Configuration error'
                     } else if (planExitCode == 2) {
-                        echo '🟡 Resources need to be created. Proceeding with quality checks...'
-                        env.PROCEED_WITH_CREATION = 'true'
+                        echo '🟡 Resources need to be created'
+                        echo '📋 Showing what will be created:'
+                        sh 'terraform plan'
                     }
                 }
             }
         }
-        
         stage('SonarQube Analysis') {
-            when {
-                environment name: 'PROCEED_WITH_CREATION', value: 'true'
-            }
             steps {
-                echo '🔍 Running SonarQube code quality analysis...'
-                
-                script {
-                    withSonarQubeEnv('SonarQube') {  // 'SonarQube' should match your Jenkins SonarQube configuration name
-                        sh '''
-                            sonar-scanner \
-                              -Dsonar.projectKey=terraform-aws-project \
-                              -Dsonar.projectName="Terraform AWS Infrastructure" \
-                              -Dsonar.projectVersion=1.0 \
-                              -Dsonar.sources=. \
-                              -Dsonar.inclusions="**/*.tf,**/*.tfvars" \
-                              -Dsonar.exclusions="**/.terraform/**,**/terraform.tfstate*" \
-                              -Dsonar.host.url=${SONAR_HOST_URL} \
-                              -Dsonar.login=${SONAR_TOKEN}
-                        '''
-                    }
+                echo 'Running SonarQube analysis...'
+                withSonarQubeEnv('SonarQube Scanner') {
+                    sh 'sonar-scanner'
                 }
-                
-                echo '✅ SonarQube analysis completed'
             }
+            echo 'SonarQube analysis completed.'
         }
-        
-        stage('Quality Gate') {
-            when {
-                environment name: 'PROCEED_WITH_CREATION', value: 'true'
-            }
+        stage('Quality Gate Check') {
             steps {
-                echo '⏳ Waiting for SonarQube Quality Gate result...'
-                
-                script {
-                    timeout(time: 5, unit: 'MINUTES') {
-                        def qg = waitForQualityGate()
-                        
-                        if (qg.status != 'OK') {
-                            echo "❌ Quality Gate failed: ${qg.status}"
-                            error "Pipeline failed due to quality gate failure: ${qg.status}"
-                        } else {
-                            echo '✅ Quality Gate passed! Proceeding with resource creation.'
-                        }
-                    }
+                echo 'Checking SonarQube Quality Gate...'
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
-        
-        stage('Show Terraform Plan') {
-            when {
-                environment name: 'PROCEED_WITH_CREATION', value: 'true'
-            }
+        stage9('terraform Plan') {
             steps {
-                echo '📋 Showing what resources will be created:'
-                sh 'terraform plan'
+                echo 'Running Terraform plan...'
+                sh 'terraform plan -out=tfplan'
             }
-        }
-        
+        }   
         stage('Create Resources') {
-            when {
-                environment name: 'PROCEED_WITH_CREATION', value: 'true'
-            }
             steps {
-                echo '🚀 Creating AWS resources...'
-                echo '✅ Quality checks passed - Proceeding with deployment'
-                
+                echo '⏳ Waiting for approval to create AWS resources...'
+                script {
+                    try {
+                        timeout(time: 10, unit: 'MINUTES') {
+                            input message: 'Do you want to create the AWS resources?', ok: 'Create Resources'
+                        }
+                    } catch (e) {
+                        echo '❌ User aborted the pipeline - Exiting...'
+                        currentBuild.result = 'ABORTED'
+                        return
+                    }
+                }
+                echo 'Creating AWS resources...'
                 sh 'terraform apply -auto-approve'
-                
-                echo '✅ Resources created successfully!'
-                echo '📋 Showing created resources:'
-                sh 'terraform output || echo "No outputs defined"'
             }
         }
-        
         stage('Upload State File') {
-            when {
-                environment name: 'PROCEED_WITH_CREATION', value: 'true'
-            }
             steps {
                 echo 'Uploading state file to S3...'
                 sh '''
                     aws s3 cp terraform.tfstate s3://ajitterraform/terraform.tfstate
-                    
-                    # Create backup with timestamp
-                    TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-                    aws s3 cp terraform.tfstate s3://ajitterraform/backups/terraform.tfstate-${TIMESTAMP}
-                    
-                    echo "State file uploaded and backed up"
                 '''
             }
         }
-    }
-    
-    post {
+        post {
         success {
             script {
                 if (currentBuild.description?.contains('already exist')) {
@@ -193,7 +149,7 @@ pipeline {
                     echo "No SonarQube artifacts to archive"
                 }
             }
-            echo '🔚 Pipeline execution completed with sonarqube scanning'
-        }
     }
 }
+    }
+    }
