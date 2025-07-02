@@ -10,10 +10,9 @@ pipeline{
     }
 
     tools {
-        terraform 'Terraform 1.5.7'
         sonarScanner 'SonarQube Scanner 4.8.0.2856'
     }
-    
+
     stages {
         stage('Clone Repository') {
             steps {
