@@ -62,11 +62,18 @@ pipeline{
                 }
             }
         }
-        stage('Quality Gate Check') {
+        stage('Approval Required') {
             steps {
-                echo 'Checking SonarQube Quality Gate...'
-                timeout(time: 10, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                script {
+                    try {
+                        timeout(time: 10, unit: 'MINUTES') {
+                            input message: 'Do you want to proceed with creating AWS resources?', ok: 'Proceed'
+                        }
+                    } catch (e) {
+                        echo '❌ User aborted the pipeline - Exiting...'
+                        currentBuild.result = 'ABORTED'
+                        return
+                    }
                 }
             }
         }
