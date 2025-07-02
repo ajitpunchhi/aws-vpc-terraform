@@ -72,7 +72,6 @@ pipeline{
                     sh 'sonar-scanner'
                 }
             }
-            echo 'SonarQube analysis completed.'
         }
         stage('Quality Gate Check') {
             steps {
@@ -114,6 +113,7 @@ pipeline{
                 '''
             }
         }
+        
         post {
         success {
             script {
