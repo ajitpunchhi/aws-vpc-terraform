@@ -193,7 +193,7 @@ pipeline {
                     echo "No SonarQube artifacts to archive"
                 }
             }
-            echo '🔚 Pipeline execution completed'
+            echo '🔚 Pipeline execution completed with sonarqube scanning'
         }
     }
 }
