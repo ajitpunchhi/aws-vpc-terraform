@@ -6,7 +6,7 @@ pipeline{
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         AWS_DEFAULT_REGION = 'ap-south-1'
         SONAR_TOKEN = credentials('SONAR_TOKEN')
-        SONAR_HOST_URL = 'http://15.206.153.35:9000'
+        SONAR_HOST_URL = 'http://3.7.2.217:9000'
     }
 
     tools {
